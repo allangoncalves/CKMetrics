@@ -32,7 +32,7 @@ class DITTree:
 	def depth(self, key):
 		node = self.find_node(self.root, key)
 		if not(node):
-				raise NodeNotFoundException('No element was found with the informed parent key.')
+			raise NodeNotFoundException('No element was found with the informed parent key.')
 		return self.auxDepth(node) 
 
 	def auxDepth(self, node):
