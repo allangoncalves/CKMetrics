@@ -27,7 +27,24 @@ class DITTree:
 			return_node = self.find_node(child, key)
 			if return_node: 
 				return return_node
-		return None	
+		return None
+
+	def depth(self, key):
+		node = self.find_node(self.root, key)
+		if not(node):
+				raise NodeNotFoundException('No element was found with the informed parent key.')
+		return self.auxDepth(node) 
+
+	def auxDepth(self, node):
+		if not node.children:
+			return 0
+
+		maxdepth = []		
+		
+		for child in node.children:
+			maxdepth.append(self.auxDepth(child)) 
+		
+		return 1 + max(maxdepth)
 
 	def add(self, new_key, parent_key=None):
 		new_node = Node(new_key)
@@ -72,6 +89,7 @@ if __name__ == "__main__":
 	tree.add(70, 20)
 	tree.add(78, 70)
 	tree.add(11, 30)
+	print tree.depth(11)
 
 	print 'N-ary tree size:', tree.lenght()
 	print tree
