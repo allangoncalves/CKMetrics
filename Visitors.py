@@ -18,17 +18,36 @@ class NOCVisitor(ast.NodeVisitor):
 		print(self.superclasses)
 		
 
-class DIFVisitor(ast.NodeVisitor):
+class DITVisitor(ast.NodeVisitor):
 	
-	superclasses = {}
+	superclasses = {'Object': []}
 
 	def visit_ClassDef(self, node):
-		for n in node.bases:
-			print(n.attr)
-			if str(n.attr) not in self.superclasses:
-				self.superclasses[n.attr] = [node.name]
-			elif node.name not in self.superclasses[n.attr]:
-				self.superclasses[n.attr].append(node.name)
+		if len(node.bases) == 0:
+			if node.name not in self.superclasses['Object']:
+				self.superclasses['Object'].append(node.name)
+				self.superclasses[node.name] = []
+				print(self.superclasses['Object'])
+		else:
+			for n in node.bases:
+				if n.attr not in self.superclasses['Object']:
+					self.superclasses['Object'].append(n.attr)
+					self.superclasses[n.attr] = [node.name]
+				else:
+					if node.name not in self.superclasses[n.attr]:
+						self.superclasses[n.attr].append(node.name)
+					if node.name in self.superclasses['Object']:
+						self.superclasses['Object'].remove(n.attr)
+				self.superclasses[node.name] = []
+
+
+
+				'''if str(n.attr) not in self.superclasses:
+					self.superclasses[n.attr] = [node.name]
+					self.superclasses['Object'].append(node.name)
+				elif node.name not in self.superclasses[n.attr]:
+					self.superclasses[n.attr].append(node.name)
+				'''
 
 if __name__ == "__main__":
     

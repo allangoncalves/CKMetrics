@@ -1,13 +1,14 @@
 from Visitors import *
-import sys
-import glob
-import json
+from DITTree import *
+import sys, glob, json
 
 class Examiner():
 
-	myVisitor = NOCVisitor()
+	nocVisitor = NOCVisitor()
+	ditVisitor = DITVisitor()
 	root = ast.AST()
 	directories = []
+	tree = DITTree()
 
 	def getDirectories(self, projectFolder):
 		os.chdir(projectFolder)
@@ -15,7 +16,6 @@ class Examiner():
 			for name in file:
 				if name.endswith(".py"):
 					self.directories.append(os.path.join(directory, name))
-		print(self.directories)
 
 	def getAST(self, directory):
 		with open(directory, "r") as input:
@@ -29,16 +29,30 @@ class Examiner():
 			print("Opening file:{}".format(file))
 			with open(file, "r") as input:
 				self.getAST(file)
-				self.myVisitor.visit(self.root)
-				print(self.myVisitor.superclasses)
+				self.nocVisitor.visit(self.root)
+				#print(self.nocVisitor.superclasses)
 		os.chdir(sys.argv[1])
 		with open("NOC_","w") as input:
-			input.write(json.dumps(detector.myVisitor.superclasses, ensure_ascii=False, indent=4))
+			input.write(json.dumps(self.nocVisitor.superclasses, ensure_ascii=False, indent=4))
 
-	def DIT(self):
-		pass
-		
+	def DIT(self):		
+		for file in self.directories:
+			print("Opening file:{}".format(file))
+			with open(file, "r") as input:
+				self.getAST(file)
+				self.ditVisitor.visit(self.root)
+		aux = self.ditVisitor.superclasses['Object']
+		self.tree.add('Object')
+		print(self.ditVisitor.superclasses)
+		self.treeADD(aux, 'Object')
 
+	def treeADD(self, children, father):
+		if children.__len__()==0:
+			return None
+		else:
+			for child in children:
+				self.tree.add(child, father)
+				self.treeADD(self.ditVisitor.superclasses[child], child)
 
 
 if __name__ == "__main__" :
@@ -46,6 +60,8 @@ if __name__ == "__main__" :
 	detector = Examiner()
 	detector.getDirectories(sys.argv[1])
 	detector.NOC()
+	detector.DIT()
+	print detector.tree
 		
 
 
