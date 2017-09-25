@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from Visitors import *
 from DITTree import *
 import sys, glob, json

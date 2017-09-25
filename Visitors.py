@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import ast
 import os
 
@@ -42,23 +43,22 @@ class DITVisitor(ast.NodeVisitor):
 			raise NotImplementedError("Could not extract call-name from node: " + str(node))
 
 	def visit_ClassDef(self, node):
-		if len(node.bases) == 0:
-			if node.name not in self.superclasses['Object']:
-				self.superclasses['Object'].append(node.name)
-				self.superclasses[node.name] = []
-				#print(self.superclasses['Object'])
+		if len(node.bases) == 0:#classe sem Pai
+			self.superclasses['Object'].append(node.name)
+			self.superclasses[node.name] = []
+			#print(self.superclasses['Object'])
 		else:
 			for n in node.bases:
 				fatherName = self.get_call_name(n)
-				if fatherName not in self.superclasses['Object']:
-					self.superclasses['Object'].append(fatherName)
-					self.superclasses[fatherName] = [node.name]
-				else:
-					if node.name not in self.superclasses[fatherName]:
-						self.superclasses[fatherName].append(node.name)
-					if node.name in self.superclasses['Object']:
-						self.superclasses['Object'].remove(fatherName)
-				self.superclasses[node.name] = []
+				if fatherName not in self.superclasses['Object']:#caso em que não foi encontrado (ainda) uma definição para a classe pai
+					self.superclasses['Object'].append(fatherName)#adiciona o pai aos filhos diretos de Object
+					self.superclasses[fatherName] = [node.name]#cria a lista de filhos
+				else:#definição para a classe pai foi encontrada
+					self.superclasses[fatherName].append(node.name)
+					if node.name in self.superclasses['Object']:#como foi encontrado uma classe pai definida, a classe filha não pode ser filha direta de Object
+						self.superclasses['Object'].remove(node.name)
+			if node.name not in self.superclasses:
+				self.superclasses[node.name] = [] 
 
 if __name__ == "__main__":
     

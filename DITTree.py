@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 class NodeNotFoundException(Exception):
 
 	def __init__(self, value):
@@ -8,7 +10,7 @@ class NodeNotFoundException(Exception):
 
 
 class Node:
-	
+
 	def __init__(self, key, children=None):
 		self.key = key
 		self.children = children or []
