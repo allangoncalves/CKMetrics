@@ -43,7 +43,7 @@ class Examiner():
 				self.ditVisitor.visit(self.root)
 		aux = self.ditVisitor.superclasses['Object']
 		self.tree.add('Object')
-		print(self.ditVisitor.superclasses)
+		#print(self.ditVisitor.superclasses)
 		self.treeADD(aux, 'Object')
 
 	def treeADD(self, children, father):
@@ -61,7 +61,11 @@ if __name__ == "__main__" :
 	detector.getDirectories(sys.argv[1])
 	detector.NOC()
 	detector.DIT()
-	print detector.tree
-		
+	print '\nFinal tree structure: \n{}\n'.format(detector.tree)
+	'''
+	print 'Object depth: {}'.format(detector.tree.depth('Object'))
+	print 'NodeVisitor depth: {}'.format(detector.tree.depth('NodeVisitor'))
+	print 'Examiner depth: {}'.format(detector.tree.depth('Examiner'))
+	'''
 
 

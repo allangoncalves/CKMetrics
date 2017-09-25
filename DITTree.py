@@ -1,4 +1,5 @@
 class NodeNotFoundException(Exception):
+
 	def __init__(self, value):
 		self.value = value
 	
@@ -7,6 +8,7 @@ class NodeNotFoundException(Exception):
 
 
 class Node:
+	
 	def __init__(self, key, children=None):
 		self.key = key
 		self.children = children or []
@@ -89,7 +91,7 @@ if __name__ == "__main__":
 	tree.add(70, 20)
 	tree.add(78, 70)
 	tree.add(11, 30)
-	print tree.depth(11)
+	print tree.depth(10)
 
 	print 'N-ary tree size:', tree.lenght()
 	print tree

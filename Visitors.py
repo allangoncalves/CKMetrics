@@ -6,13 +6,22 @@ class NOCVisitor(ast.NodeVisitor):
 
 	superclasses = {}
 
+	def get_call_name(self, node):
+		if isinstance(node, ast.Name):
+			return node.id
+		elif isinstance(node, ast.Attribute):
+			return node.attr
+		else:
+			raise NotImplementedError("Could not extract call-name from node: " + str(node))
+
 	def visit_ClassDef(self, node):
 		for n in node.bases:
-			print(n.attr)
-			if str(n.attr) not in self.superclasses:
-				self.superclasses[n.attr] = [node.name]
-			elif node.name not in self.superclasses[n.attr]:
-				self.superclasses[n.attr].append(node.name)
+			fatherName = self.get_call_name(n)
+			#print(fatherName)
+			if str(fatherName) not in self.superclasses:
+				self.superclasses[fatherName] = [node.name]
+			elif node.name not in self.superclasses[fatherName]:
+				self.superclasses[fatherName].append(node.name)
 
 	def printDict(self):
 		print(self.superclasses)
@@ -22,32 +31,34 @@ class DITVisitor(ast.NodeVisitor):
 	
 	superclasses = {'Object': []}
 
+	def get_call_name(self, node):
+		if isinstance(node, ast.Name):
+			print 'Name'
+			return node.id
+		elif isinstance(node, ast.Attribute):
+			print 'Attribute'
+			return node.attr
+		else:
+			raise NotImplementedError("Could not extract call-name from node: " + str(node))
+
 	def visit_ClassDef(self, node):
 		if len(node.bases) == 0:
 			if node.name not in self.superclasses['Object']:
 				self.superclasses['Object'].append(node.name)
 				self.superclasses[node.name] = []
-				print(self.superclasses['Object'])
+				#print(self.superclasses['Object'])
 		else:
 			for n in node.bases:
-				if n.attr not in self.superclasses['Object']:
-					self.superclasses['Object'].append(n.attr)
-					self.superclasses[n.attr] = [node.name]
+				fatherName = self.get_call_name(n)
+				if fatherName not in self.superclasses['Object']:
+					self.superclasses['Object'].append(fatherName)
+					self.superclasses[fatherName] = [node.name]
 				else:
-					if node.name not in self.superclasses[n.attr]:
-						self.superclasses[n.attr].append(node.name)
+					if node.name not in self.superclasses[fatherName]:
+						self.superclasses[fatherName].append(node.name)
 					if node.name in self.superclasses['Object']:
-						self.superclasses['Object'].remove(n.attr)
+						self.superclasses['Object'].remove(fatherName)
 				self.superclasses[node.name] = []
-
-
-
-				'''if str(n.attr) not in self.superclasses:
-					self.superclasses[n.attr] = [node.name]
-					self.superclasses['Object'].append(node.name)
-				elif node.name not in self.superclasses[n.attr]:
-					self.superclasses[n.attr].append(node.name)
-				'''
 
 if __name__ == "__main__":
     
