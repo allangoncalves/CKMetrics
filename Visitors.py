@@ -55,10 +55,75 @@ class DITVisitor(ast.NodeVisitor):
 					self.superclasses[fatherName] = [node.name]#cria a lista de filhos
 				else:#definição para a classe pai foi encontrada
 					self.superclasses[fatherName].append(node.name)
-					if node.name in self.superclasses['Object']:#como foi encontrado uma classe pai definida, a classe filha não pode ser filha direta de Object
+					if node.name in self.superclasses['Object']:#encontrado uma classe pai definida, classe filha não pode ser filha direta de Object
 						self.superclasses['Object'].remove(node.name)
 			if node.name not in self.superclasses:
 				self.superclasses[node.name] = [] 
+
+class WMCVisitor(ast.NodeVisitor):
+	
+	complexity = 1
+
+	def visit_FunctionDef(self, node):
+		for item in node.body:
+			self.visit(item)
+
+	def visit_IfExp(self, node):
+		self.complexity += 1
+
+	def visit_If(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_For(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_While(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+	def visit_Break(self, node):
+		self.complexity += 1
+
+	def visit_Continue(self, node):
+		self.complexity += 1
+
+	def visit_Try(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_TryFinally(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_TryExcept(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_ExceptHandler(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_With(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_withitem(self, node):
+		self.complexity += 1
+		for item in node.body:
+			self.visit(item)
+
+	def visit_Lambda(self, node):
+		for item in node.body:
+			self.visit(item)
 
 if __name__ == "__main__":
     
