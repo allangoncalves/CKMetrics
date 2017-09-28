@@ -28,28 +28,30 @@ class Examiner():
 			self.root = ast.parse(file_str)
 
 	def WMC(self):
-		self.runMetric(self.wmcVisitor)
-		print self.wmcVisitor.complexity
+		print self.wmcVisitor.classes
 
 
 	def NOC(self):
-		self.runMetric(self.nocVisitor)
-		os.chdir(sys.argv[1])
 		with open("NOC_","w") as input:
 			input.write(json.dumps(self.nocVisitor.superclasses, ensure_ascii=False, indent=4))
 
 	def DIT(self):		
-		self.runMetric(self.ditVisitor)
 		aux = self.ditVisitor.superclasses['Object']
 		self.tree.add('Object')
 		self.treeADD(aux, 'Object')
+		print self.tree
 
-	def runMetric(self, visitor):
+	def runMetrics(self):
 		for file in self.directories:
 			print("Opening file:{}".format(file))
 			with open(file, "r") as input:
 				self.getAST(file)
-				visitor.visit(self.root)
+				self.nocVisitor.visit(self.root)
+				self.ditVisitor.visit(self.root)
+				self.wmcVisitor.visit(self.root)
+		self.DIT()
+		self.WMC()
+		self.NOC()
 
 	def treeADD(self, children, father):
 		if children.__len__()==0:
@@ -61,20 +63,18 @@ class Examiner():
 
 
 if __name__ == "__main__" :
-	
+	detector = Examiner()
 	if len(sys.argv) >=2:
-		detector = Examiner()
 		detector.getDirectories(sys.argv[1])
-		detector.NOC()
-		detector.DIT()
-		detector.WMC()
-		print '\nFinal tree structure: \n{}\n'.format(detector.tree)
-		'''
-		print 'Object depth: {}'.format(detector.tree.depth('Object'))
-		print 'NodeVisitor depth: {}'.format(detector.tree.depth('NodeVisitor'))
-		print 'Examiner depth: {}'.format(detector.tree.depth('Examiner'))
-		'''
 	else:
-		print 'Digite algum diretório.'
+		detector.getDirectories('.')
 
+	detector.runMetrics()
+
+
+'''
+print 'Object depth: {}'.format(detector.tree.depth('Object'))
+print 'NodeVisitor depth: {}'.format(detector.tree.depth('NodeVisitor'))
+print 'Examiner depth: {}'.format(detector.tree.depth('Examiner'))
+'''
 

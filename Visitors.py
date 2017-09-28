@@ -17,15 +17,13 @@ class NOCVisitor(ast.NodeVisitor):
 
 	def visit_ClassDef(self, node):
 		for n in node.bases:
-			fatherName = self.get_call_name(n)
-			#print(fatherName)
-			if str(fatherName) not in self.superclasses:
-				self.superclasses[fatherName] = [node.name]
-			elif node.name not in self.superclasses[fatherName]:
-				self.superclasses[fatherName].append(node.name)
+			parentName = self.get_call_name(n)
+			#print(parentName)
+			if str(parentName) not in self.superclasses:
+				self.superclasses[parentName] = [node.name]
+			elif node.name not in self.superclasses[parentName]:
+				self.superclasses[parentName].append(node.name)
 
-	def printDict(self):
-		print(self.superclasses)
 		
 
 class DITVisitor(ast.NodeVisitor):
@@ -49,42 +47,37 @@ class DITVisitor(ast.NodeVisitor):
 			#print(self.superclasses['Object'])
 		else:
 			for n in node.bases:
-				fatherName = self.get_call_name(n)
-				if fatherName not in self.superclasses['Object']:#caso em que não foi encontrado (ainda) uma definição para a classe pai
-					self.superclasses['Object'].append(fatherName)#adiciona o pai aos filhos diretos de Object
-					self.superclasses[fatherName] = [node.name]#cria a lista de filhos
+				parentName = self.get_call_name(n)
+				if parentName not in self.superclasses['Object']:#caso em que não foi encontrado (ainda) uma definição para a classe pai
+					self.superclasses['Object'].append(parentName)#adiciona o pai aos filhos diretos de Object
+					self.superclasses[parentName] = [node.name]#cria a lista de filhos
 				else:#definição para a classe pai foi encontrada
-					self.superclasses[fatherName].append(node.name)
+					self.superclasses[parentName].append(node.name)
 					if node.name in self.superclasses['Object']:#encontrado uma classe pai definida, classe filha não pode ser filha direta de Object
 						self.superclasses['Object'].remove(node.name)
 			if node.name not in self.superclasses:
 				self.superclasses[node.name] = [] 
 
-class WMCVisitor(ast.NodeVisitor):
-	
+class BodyVisitor(ast.NodeVisitor):
+
 	complexity = 1
 
-	def visit_FunctionDef(self, node):
-		for item in node.body:
-			self.visit(item)
+	def helper(self, node):
+		self.complexity += 1
+		super(BodyVisitor, self).generic_visit(node)
 
 	def visit_IfExp(self, node):
 		self.complexity += 1
 
 	def visit_If(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)		
 
 	def visit_For(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_While(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
+
 	def visit_Break(self, node):
 		self.complexity += 1
 
@@ -92,38 +85,39 @@ class WMCVisitor(ast.NodeVisitor):
 		self.complexity += 1
 
 	def visit_Try(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_TryFinally(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_TryExcept(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_ExceptHandler(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_With(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_withitem(self, node):
-		self.complexity += 1
-		for item in node.body:
-			self.visit(item)
+		self.helper(node)
 
 	def visit_Lambda(self, node):
-		for item in node.body:
-			self.visit(item)
+		super(BodyVisitor, self).generic_visit(node)
+
+class WMCVisitor(ast.NodeVisitor):
+	
+	classes = {}
+	bodyvisitor = BodyVisitor()
+
+	def visit_ClassDef(self, node):
+		super(WMCVisitor, self).generic_visit(node)
+		self.classes[node.name] = self.bodyvisitor.complexity
+		self.bodyvisitor.complexity = 1
+
+	def visit_FunctionDef(self, node):
+		super(BodyVisitor, self.bodyvisitor).generic_visit(node)
+	
 
 if __name__ == "__main__":
     
@@ -145,6 +139,6 @@ if __name__ == "__main__":
 	        root = ast.parse(file_str)
 
 	        # visits the Abstract Syntax Tree
-	        v = NOCVisitor()
+	        v = WMCVisitor()
 	        v.visit(root)
-	        v.printDict()
+	        print v.classes
