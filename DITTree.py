@@ -35,7 +35,7 @@ class DITTree:
 
 	def depth(self, key):
 		node = self.find_node(self.root, key)
-		if not(node):
+		if not node:
 			raise NodeNotFoundException('No element was found.')
 		return self.auxDepth(node) 
 
@@ -52,12 +52,12 @@ class DITTree:
 
 	def add(self, new_key, parent_key=None):
 		new_node = Node(new_key)
-		if parent_key == None:
+		if not parent_key:
 			self.root = new_node
 			self.size = 1
 		else:
 			parent_node = self.find_node(self.root, parent_key)
-			if not(parent_node):
+			if not parent_node:
 				raise NodeNotFoundException('No element was found with the informed parent key.')
 			parent_node.children.append(new_node)
 			self.size += 1
@@ -65,9 +65,8 @@ class DITTree:
 	def print_tree(self, node, str_aux):
 		if node == None: return ""
 		str_aux += str(node) + '('
-		for i in range(len(node.children)):
-			child = node.children[i]
-			end = ',' if i < len(node.children) - 1 else ''
+		for child in node.children:
+			end = ',' if child is not node.children[-1] else ''
 			str_aux = self.print_tree(child, str_aux) + end
 		str_aux += ')'
 		return str_aux

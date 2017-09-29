@@ -19,9 +19,8 @@ class NOCVisitor(ast.NodeVisitor):
 		for n in node.bases:
 			parentName = self.get_call_name(n)
 			#print(parentName)
-			if str(parentName) not in self.superclasses:
-				self.superclasses[parentName] = [node.name]
-			elif node.name not in self.superclasses[parentName]:
+			self.superclasses.setdefault(parentName, [])
+			if node.name not in self.superclasses[parentName]:
 				self.superclasses[parentName].append(node.name)
 
 		
@@ -32,10 +31,8 @@ class DITVisitor(ast.NodeVisitor):
 
 	def get_call_name(self, node):
 		if isinstance(node, ast.Name):
-			print 'Name'
 			return node.id
 		elif isinstance(node, ast.Attribute):
-			print 'Attribute'
 			return node.attr
 		else:
 			raise NotImplementedError("Could not extract call-name from node: " + str(node))
@@ -44,19 +41,15 @@ class DITVisitor(ast.NodeVisitor):
 		if len(node.bases) == 0:#classe sem Pai
 			self.superclasses['Object'].append(node.name)
 			self.superclasses[node.name] = []
-			#print(self.superclasses['Object'])
 		else:
 			for n in node.bases:
 				parentName = self.get_call_name(n)
-				if parentName not in self.superclasses['Object']:#caso em que não foi encontrado (ainda) uma definição para a classe pai
-					self.superclasses['Object'].append(parentName)#adiciona o pai aos filhos diretos de Object
-					self.superclasses[parentName] = [node.name]#cria a lista de filhos
-				else:#definição para a classe pai foi encontrada
-					self.superclasses[parentName].append(node.name)
-					if node.name in self.superclasses['Object']:#encontrado uma classe pai definida, classe filha não pode ser filha direta de Object
-						self.superclasses['Object'].remove(node.name)
-			if node.name not in self.superclasses:
-				self.superclasses[node.name] = [] 
+				if parentName not in self.superclasses['Object'] and parentName not in self.superclasses:#primeira vez
+					self.superclasses['Object'].append(parentName)
+				if node.name in self.superclasses['Object']:#se a classe tem pai, então ela não pode herdar diretamente de obj
+					self.superclasses['Object'].remove(node.name)
+				self.superclasses.setdefault(parentName, []).append(node.name)#associa classe cliente a classe servidora
+			self.superclasses.setdefault(node.name, []) 
 
 class BodyVisitor(ast.NodeVisitor):
 
