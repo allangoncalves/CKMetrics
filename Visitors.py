@@ -113,9 +113,10 @@ class WMCVisitor(ast.NodeVisitor):
 	def visit_ClassDef(self, node):
 		super(WMCVisitor, self).generic_visit(node)
 		self.classes[node.name] = self.bodyvisitor.complexity
-		self.bodyvisitor.complexity = 1
+		self.bodyvisitor.complexity = 0
 
 	def visit_FunctionDef(self, node):
+		self.bodyvisitor.complexity +=1
 		super(BodyVisitor, self.bodyvisitor).generic_visit(node)
 	
 
