@@ -55,7 +55,7 @@ class BodyVisitor(ast.NodeVisitor):
 
 	complexity = 1
 
-	def helper(self, node):
+	def funcBody(self, node):
 		self.complexity += 1
 		super(BodyVisitor, self).generic_visit(node)
 
@@ -63,13 +63,13 @@ class BodyVisitor(ast.NodeVisitor):
 		self.complexity += 1
 
 	def visit_If(self, node):
-		self.helper(node)		
+		self.funcBody(node)		
 
 	def visit_For(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_While(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_Break(self, node):
 		self.complexity += 1
@@ -78,22 +78,22 @@ class BodyVisitor(ast.NodeVisitor):
 		self.complexity += 1
 
 	def visit_Try(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_TryFinally(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_TryExcept(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_ExceptHandler(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_With(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_withitem(self, node):
-		self.helper(node)
+		self.funcBody(node)
 
 	def visit_Lambda(self, node):
 		super(BodyVisitor, self).generic_visit(node)
